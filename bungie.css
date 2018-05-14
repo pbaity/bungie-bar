@@ -1,0 +1,51 @@
+#left, #right, #bungie {
+    padding: 0 10px;
+    overflow: hidden;
+    height: 100%;
+}
+
+#left {
+    float: left;
+}
+
+#right {
+    float: right;
+}
+
+#bungie {
+    float: left;
+    white-space: nowrap;
+}
+
+#left-btn, #right-btn {
+    height: 40px;
+    display: inline-block;
+    font-size: 28px;
+    background-color: transparent;
+    border: none;
+    color: white;
+    margin-top: 5px;
+    width: 22px;
+}
+
+#left-btn {
+    float: left;
+    border-right: 1px solid white;
+}
+
+#right-btn {
+    float: right;
+    border-left: 1px solid white;
+}
+
+#left-btn::before {
+    /* This is the HTML character &lsaquo; */
+    /* Can be substituted with &langle; */
+    content: "‹";
+}
+
+#right-btn::before {
+    /* This is the HTML character &rsaquo; */
+    /* Can be substituted with &rangle; */
+    content: "›";
+}
