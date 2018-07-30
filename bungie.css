@@ -17,6 +17,14 @@
     white-space: nowrap;
 }
 
+    #bungie li {
+        list-style-type: none;
+        display: inline-block;
+        padding: 0 10px;
+        white-space: nowrap;
+        margin-left: -4px;
+    }
+
 #left-btn, #right-btn {
     height: 40px;
     display: inline-block;
@@ -40,12 +48,12 @@
 
 #left-btn::before {
     /* This is the HTML character &lsaquo; */
-    /* Can be substituted with &langle; */
+    /* Can be substituted with &langle; or another character; just may require tweaking css elsewhere */
     content: "‹";
 }
 
 #right-btn::before {
     /* This is the HTML character &rsaquo; */
-    /* Can be substituted with &rangle; */
+    /* Can be substituted with &rangle; or another character; just may require tweaking css elsewhere */
     content: "›";
 }

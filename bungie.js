@@ -5,19 +5,14 @@
         leftdiv = document.getElementById("left"),
         rightdiv = document.getElementById("right"),
         list = bungie.getElementsByTagName("UL")[0],
-        leftbutton,
-        rightbutton,
-        listwidth = 0,
+        listitems = list.getElementsByTagName("LI"),
+        currentIndex = 0,
+        listwidth = bungie.scrollWidth,
         visiblewidth = 0,
-        scroll = 0,
-        step = 0;
-
-    // measure the full width of the list inside the bungie bar
-    // by making a clone, measuring it, and deleting it
-    var cln = bungie.cloneNode(true);
-    document.body.appendChild(cln);
-    listwidth = Math.ceil(cln.offsetWidth);
-    cln.parentNode.removeChild(cln);
+        currentScroll = 0,
+        maxScroll = 0,
+        leftbutton,
+        rightbutton;
 
     // initialize
     setBungieWidth();
@@ -44,32 +39,40 @@
 
         bungie.style.maxWidth =  ((visiblewidth - (padleft + padright)) - 2) + "px";
 
-        var id = setInterval(frame, 5),
-        pos = 0;
-        function frame() {
-            if (scroll >= 0) {
+        var id = setInterval(reset, 5);
+        
+        function reset() {
+            if (currentScroll >= 0) {
+                currentScroll = 0;
                 clearInterval(id);
             } else {
-                scroll += 9;
-                list.style.marginLeft = scroll + 'px';
+                currentScroll += 10;
             }
+            list.style.marginLeft = currentScroll + 'px';
         }
+
+        currentIndex = 0;
     }
 
     function addScrollButtons() {
         removeScrollButtons();
 
+        // add the right button and subtract it's width from the list's visible width
         rightbutton = document.createElement("button");
         rightbutton.setAttribute("id", "right-btn");
         bungie.parentNode.appendChild(rightbutton);
         rightbutton.addEventListener("click", scrollRight);
         visiblewidth -= rightbutton.offsetWidth;
 
+        // add the left button and subtract it's width from the list's visible width
         leftbutton = document.createElement("button");
         leftbutton.setAttribute("id", "left-btn");
         bungie.parentNode.insertBefore(leftbutton, bungie);
         leftbutton.addEventListener("click", scrollLeft);
         visiblewidth -= leftbutton.offsetWidth;
+
+        // set maxScroll, which is the limit of how far right the bungie bar can be scrolled
+        maxScroll = (0 - (listwidth - visiblewidth));
     }
 
     function removeScrollButtons() {
@@ -84,51 +87,59 @@
         }
     }
 
-    function scrollRight() {
-        if (scroll > (0 - (listwidth - visiblewidth))) {
-            rightbutton.disabled = true;
-            var id = setInterval(frame, 5),
-            pos = 0;
-            function frame() {
-                if (pos <= (0 - step)) {
-                    clearInterval(id);
-                    rightbutton.disabled = false;
-                } else {
-                    if (scroll > (0 - (listwidth - visiblewidth))) {
-                        pos -= 3; 
-                        scroll -= 3;
-                        list.style.marginLeft = scroll + 'px';
-                    } else {
-                        clearInterval(id);
-                        rightbutton.disabled = false;
-                        return;
-                    }                    
-                }
+    function getElementFullWidth(element) {
+        // thanks and credit to reaxis from StackOverflow:
+        // https://stackoverflow.com/questions/23268784/how-to-get-element-width-height-with-margin-padding-border-in-native-javascrip
+        var style = element.currentStyle || window.getComputedStyle(element),
+            width = parseFloat(style.width),
+            margin = parseFloat(style.marginLeft) + parseFloat(style.marginRight) + 4,
+            padding = parseFloat(style.paddingLeft) + parseFloat(style.paddingRight),
+            border = parseFloat(style.borderLeftWidth) + parseFloat(style.borderRightWidth),
+            fullwidth = width + margin + padding + border;
+
+        return fullwidth;
+    }
+
+    function scroll(amount, button) {
+        button.disabled = true;
+        let scrollTo = currentScroll + amount;
+
+        if (scrollTo > maxScroll) {
+            if (scrollTo > 0) {
+                currentScroll = 0;
+            } else {
+                currentScroll = scrollTo;
             }
+        } else {
+            currentScroll = maxScroll;
+        }
+
+        list.style.marginLeft = currentScroll + 'px';
+
+        if (currentScroll === maxScroll) {
+            currentIndex--;
+            
+        } 
+        
+        button.disabled = false;
+    }
+
+    function scrollRight() {
+        if (currentScroll > maxScroll) {
+            let index = currentIndex + 1 > listitems.length + 1 ? currentIndex : currentIndex++,
+                amount = -Math.abs(getElementFullWidth(listitems[index]));
+
+            scroll(amount, rightbutton);
         }
     }
 
     function scrollLeft() {
-        if (scroll < 0) {
-            leftbutton.disabled = true;
-            var id = setInterval(frame, 5),
-            pos = 0;
-            function frame() {
-                if (pos >= step) {
-                    clearInterval(id);
-                    leftbutton.disabled = false;
-                } else {
-                    if (scroll < 0) {
-                        pos += 3; 
-                        scroll += 3;
-                        list.style.marginLeft = scroll + 'px';
-                    } else {
-                        clearInterval(id);
-                        leftbutton.disabled = false;
-                        return;
-                    }
-                }
-            }
+        if (currentScroll < 0) {
+            let index = currentIndex - 1 < 0 ? 0 : --currentIndex,
+                amount = Math.abs(getElementFullWidth(listitems[index]));
+
+            scroll(amount, leftbutton);
         }
     }
+
 })();
